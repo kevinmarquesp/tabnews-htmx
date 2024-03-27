@@ -16,45 +16,58 @@
 	</head>
 	<body hx-ext="client-side-templates" class="p-5">
 
-		<div
-			hx-get="https://corsproxy.io/?https://www.tabnews.com.br/api/v1/contents?page=1&per_page=10&strategy=relevant"
+		<main
+			hx-get="https://corsproxy.io/?https://www.tabnews.com.br/api/v1/contents?"
+			hx-vals="js:{page: 1, per_page: 10, strategy: 'relevant'}"
 			hx-swap="innerHTML"
 			hx-target="this"
 			hx-trigger="load"
 			mustache-array-template="mtt-card"
-		></div>
+			id="app"
+		></main>
 
 		<template id="mtt-card">
-			{{#data}}
-				<div>
-					<div class="shadow mb-4 d-inline-block rounded-3 border px-3 py-2">
-						<a
-							href="#"
-							class="fs-5 lh-0 text-dark link-underline-dark link-underline-opacity-0 link-underline-opacity-75-hover"
-							hx-get="https://corsproxy.io/?https://www.tabnews.com.br/api/v1/contents/{{owner_username}}/{{slug}}"
-							hx-target="next .article"
-							mustache-array-template="mtt-article"
-						>{{title}}</a>
+			<section data-js-card>
+				{{#data}}
+					<div>
+						<div class="shadow mb-4 d-inline-block rounded-3 border px-3 py-2">
+							<a
+								href="#"
+								class="fs-5 lh-0 text-dark link-underline-dark link-underline-opacity-0 link-underline-opacity-75-hover"
+								hx-get="https://corsproxy.io/?https://www.tabnews.com.br/api/v1/contents/{{owner_username}}/{{slug}}"
+								hx-target="next .article"
+								mustache-array-template="mtt-article"
+							>{{title}}</a>
 
-						<div class="article"></div>
+							<div class="article"></div>
 
-						<footer class="my-2 text-secondary align-items-center">
-							<small class="d-flex gap-4">
-								<a
-									href="https://www.tabnews.com.br/{{owner_username}}"
-									target="_blank"
-									class="fs-6 lh-1 text-secondary link-underline-secondary link-underline-opacity-0 link-underline-opacity-75-hover link-offset-2"
-								>{{owner_username}}</a>
-								<span><i class="bi bi-chat-dots"></i> {{children_deep_count}}</span>
-								<span><i class="bi bi-arrow-up"></i> {{tabcoins_credit}}</span>
-								<span><i class="bi bi-arrow-down"></i> {{tabcoins_debit}}</span>
-								<span><i class="bi bi-coin"></i> {{tabcoins}}</span>
-								<span class="fst-italic opacity-50 mx-3">{{published_at}}</span>
-							</small>
-						</footer>
+							<footer class="my-2 text-secondary align-items-center">
+								<small class="d-flex gap-4">
+									<a
+										href="https://www.tabnews.com.br/{{owner_username}}"
+										target="_blank"
+										class="fs-6 lh-1 text-secondary link-underline-secondary link-underline-opacity-0 link-underline-opacity-75-hover link-offset-2"
+									>{{owner_username}}</a>
+									<span><i class="bi bi-chat-dots"></i> {{children_deep_count}}</span>
+									<span><i class="bi bi-arrow-up"></i> {{tabcoins_credit}}</span>
+									<span><i class="bi bi-arrow-down"></i> {{tabcoins_debit}}</span>
+									<span><i class="bi bi-coin"></i> {{tabcoins}}</span>
+									<span class="fst-italic opacity-50 mx-3">{{published_at}}</span>
+								</small>
+							</footer>
+						</div>
 					</div>
-				</div>
-			{{/data}}
+				{{/data}}
+			</section>
+			<hr>
+			<a
+				hx-get="https://corsproxy.io/?https://www.tabnews.com.br/api/v1/contents?"
+				hx-vals="js:{page: document.querySelectorAll('section[data-js-card]').length + 1, per_page: 10, strategy: 'relevant'}"
+				hx-swap="outerHTML"
+				hx-target="this"
+				mustache-array-template="mtt-card"
+				href="#"
+			>Carregar mais</a>
 		</template>
 
 		<template id="mtt-article">
