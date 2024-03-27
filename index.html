@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+		<title>Tabnews Frontend With HTMX</title>
+
+		<script src="https://unpkg.com/htmx.org@1.9.11"></script>
+		<script src="https://unpkg.com/htmx.org@1.9.11/dist/ext/client-side-templates.js"></script>
+		<script src="https://unpkg.com/mustache@latest"></script>
+	</head>
+	<body hx-boost="false">
+
+		<div
+			hx-get="https://corsproxy.io/?https%3A%2F%2Fwww.tabnews.com.br%2Fapi%2Fv1%2Fcontents%3Fpage%3D1%26per_page%3D20%26strategy%3Dnew"
+			hx-swap="innerHTML"
+			hx-target="this"
+			hx-trigger="load"
+		></div>
+
+	</body>
+</html>
