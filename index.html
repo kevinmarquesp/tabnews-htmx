@@ -13,12 +13,17 @@
 		<script src="https://unpkg.com/htmx.org@1.9.11"></script>
 		<script src="https://unpkg.com/htmx.org@1.9.11/dist/ext/client-side-templates.js"></script>
 		<script src="https://unpkg.com/mustache@latest"></script>
+
+		<script>
+			const CARDS_PER_PAGE = 5;
+			const CARDS_STRATEGY = "relevant";
+		</script>
 	</head>
 	<body hx-ext="client-side-templates" class="p-5">
 
 		<main
 			hx-get="https://corsproxy.io/?https://www.tabnews.com.br/api/v1/contents?"
-			hx-vals="js:{page: 1, per_page: 10, strategy: 'relevant'}"
+			hx-vals="js:{page: 1, per_page: CARDS_PER_PAGE, strategy: CARDS_STRATEGY}"
 			hx-swap="innerHTML"
 			hx-target="this"
 			hx-trigger="load"
@@ -27,16 +32,16 @@
 		></main>
 
 		<template id="mtt-card">
-			<section data-js-card>
+			<section data-js-card style="border-bottom: dotted rgba(var(--bs-secondary-rgb), .5)" class="mb-4 pb-2">
 				{{#data}}
 					<div>
 						<div class="shadow mb-4 d-inline-block rounded-3 border px-3 py-2">
 							<a
-								href="#"
-								class="fs-5 lh-0 text-dark link-underline-dark link-underline-opacity-0 link-underline-opacity-75-hover"
-								hx-get="https://corsproxy.io/?https://www.tabnews.com.br/api/v1/contents/{{owner_username}}/{{slug}}"
+								hx-get="https://corsproxy.io/?https://www.tabnews.com.br/api/v1/contents/{{owner_username}}/{{slug}}?"
 								hx-target="next .article"
 								mustache-array-template="mtt-article"
+								href="#"
+								class="fs-5 lh-0 text-dark link-underline-dark link-underline-opacity-0 link-underline-opacity-75-hover"
 							>{{title}}</a>
 
 							<div class="article"></div>
@@ -59,15 +64,17 @@
 					</div>
 				{{/data}}
 			</section>
-			<hr>
 			<a
 				hx-get="https://corsproxy.io/?https://www.tabnews.com.br/api/v1/contents?"
-				hx-vals="js:{page: document.querySelectorAll('section[data-js-card]').length + 1, per_page: 10, strategy: 'relevant'}"
+				hx-vals="js:{page: document.querySelectorAll('section[data-js-card]').length + 1, per_page: CARDS_PER_PAGE, strategy: CARDS_STRATEGY}"
 				hx-swap="outerHTML"
 				hx-target="this"
 				mustache-array-template="mtt-card"
 				href="#"
-			>Carregar mais</a>
+				class="link-underline-secondary text-secondary link-offset-2"
+			>
+				<i class="bi bi-arrow-clockwise me-2"></i>Carregar mais
+			</a>
 		</template>
 
 		<template id="mtt-article">
