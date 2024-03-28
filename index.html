@@ -15,7 +15,7 @@
 		<script src="https://unpkg.com/mustache@latest"></script>
 
 		<script>
-			const CARDS_PER_PAGE = 5;
+			const CARDS_PER_PAGE = 2;
 			const CARDS_STRATEGY = "relevant";
 		</script>
 	</head>
@@ -37,7 +37,7 @@
 		></main>
 
 		<template id="mtt-card">
-			<section data-js-card>
+			<section data-js-cards>
 				{{#data}}
 					<div>
 						<div class="shadow d-inline-block rounded-3 border px-3 py-2 mt-4">
@@ -65,13 +65,11 @@
 									{{published_at}}
 								</li>
 							</ul>
+
 							<a
-								hx-get="https://corsproxy.io/?https://www.tabnews.com.br/api/v1/contents/{{owner_username}}/{{slug}}?"
-								hx-target="next .article"
-								hx-indicator="#spinner"
-								mustache-array-template="mtt-article"
 								href="#"
 								class="fs-5 lh-0 text-dark link-underline-dark link-underline-opacity-0 link-underline-opacity-75-hover"
+								onclick="document.getElementById('article-{{owner_id}}-{{id}}').classList.toggle('d-none')"
 							>{{title}}</a>
 
 							<ul style="list-style: none" class="d-flex gap-4 p-0 m-0 mt-1 text-secondary align-items-center">
@@ -84,13 +82,6 @@
 										href="#"
 										class="fs-6 lh-1 text-secondary link-underline-secondary link-underline-opacity-0 link-underline-opacity-75-hover link-offset-2"
 									>Mostrar artigo</a>
-								</li>
-								<li class="text-nowrap">
-									<a
-										href="#"
-										class="fs-6 lh-1 text-secondary link-underline-secondary link-underline-opacity-0 link-underline-opacity-75-hover link-offset-2"
-										onclick="document.getElementById('article-{{owner_id}}-{{id}}').innerHTML = ''"
-									>Esconder artigo</a>
 								</li>
 								<li class="text-nowrap">
 									<a
@@ -111,7 +102,15 @@
 								</li>
 							</ul>
 
-							<div id="article-{{owner_id}}-{{id}}" class="article"></div>
+							<div
+								hx-get="https://corsproxy.io/?https://www.tabnews.com.br/api/v1/contents/{{owner_username}}/{{slug}}?"
+								hx-target="this"
+								hx-indicator="#spinner"
+								hx-trigger="load"
+								mustache-array-template="mtt-article"
+								id="article-{{owner_id}}-{{id}}"
+								class="article d-none"
+							></div>
 
 						</div>
 					</div>
@@ -125,7 +124,7 @@
 
 			<a
 				hx-get="https://corsproxy.io/?https://www.tabnews.com.br/api/v1/contents?"
-				hx-vals="js:{page: document.querySelectorAll('section[data-js-card]').length + 1, per_page: CARDS_PER_PAGE, strategy: CARDS_STRATEGY}"
+				hx-vals="js:{page: document.querySelectorAll('section[data-js-cards]').length + 1, per_page: CARDS_PER_PAGE, strategy: CARDS_STRATEGY}"
 				hx-swap="outerHTML"
 				hx-target="this"
 				mustache-array-template="mtt-card"
