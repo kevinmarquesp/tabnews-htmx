@@ -3,6 +3,7 @@
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<base href="https://thingproxy.freeboard.io/fetch/https://www.tabnews.com.br/api/v1/">
 
 		<title>Tabnews Frontend With HTMX</title>
 
@@ -26,7 +27,7 @@
 		</div>
 
 		<main
-			hx-get="https://corsproxy.io/?https://www.tabnews.com.br/api/v1/contents?"
+			hx-get="contents?"
 			hx-vals="js:{page: 1, per_page: CARDS_PER_PAGE, strategy: CARDS_STRATEGY}"
 			hx-swap="innerHTML"
 			hx-target="this"
@@ -75,7 +76,7 @@
 							<ul style="list-style: none" class="d-flex gap-4 p-0 m-0 mt-1 text-secondary align-items-center">
 								<li class="text-nowrap">
 									<a
-										hx-get="https://corsproxy.io/?https://www.tabnews.com.br/api/v1/contents/{{owner_username}}/{{slug}}?"
+										hx-get="contents/{{owner_username}}/{{slug}}?"
 										hx-target="next .article"
 										hx-indicator="#spinner"
 										mustache-array-template="mtt-article"
@@ -85,7 +86,7 @@
 								</li>
 								<li class="text-nowrap">
 									<a
-										hx-get="https://corsproxy.io/?https://www.tabnews.com.br/api/v1/contents/{{owner_username}}/{{slug}}/children?"
+										hx-get="contents/{{owner_username}}/{{slug}}/children?"
 										hx-target="next .comments"
 										hx-indicator="#spinner"
 										mustache-array-template="mtt-comments"
@@ -103,7 +104,7 @@
 							</ul>
 
 							<div
-								hx-get="https://corsproxy.io/?https://www.tabnews.com.br/api/v1/contents/{{owner_username}}/{{slug}}?"
+								hx-get="contents/{{owner_username}}/{{slug}}?"
 								hx-target="this"
 								hx-indicator="#spinner"
 								hx-trigger="load"
@@ -123,7 +124,7 @@
 			<hr class="mt-5 mb-5">
 
 			<a
-				hx-get="https://corsproxy.io/?https://www.tabnews.com.br/api/v1/contents?"
+				hx-get="contents?"
 				hx-vals="js:{page: document.querySelectorAll('section[data-js-cards]').length + 1, per_page: CARDS_PER_PAGE, strategy: CARDS_STRATEGY}"
 				hx-swap="outerHTML"
 				hx-target="this"
@@ -180,7 +181,7 @@
 						</div>
 					</div>
 					<div
-						hx-get="https://corsproxy.io/?https://www.tabnews.com.br/api/v1/contents/{{owner_username}}/{{slug}}/children?"
+						hx-get="contents/{{owner_username}}/{{slug}}/children?"
 						hx-target="this"
 						hx-trigger="load"
 						hx-indicator="#spinner"
