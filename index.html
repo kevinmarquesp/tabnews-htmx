@@ -35,6 +35,31 @@
 			<section data-js-card style="border-bottom: dotted rgba(var(--bs-secondary-rgb), .5)" class="mb-4 pb-2">
 				{{#data}}
 					<div>
+						<ul style="list-style: none" class="d-flex gap-4 p-0 mt-1 mb-2 ms-3 text-secondary align-items-center">
+							<li>
+								<a
+									href="https://www.tabnews.com.br/{{owner_username}}"
+									target="_blank"
+									class="fs-6 lh-1 text-secondary link-underline-secondary link-underline-opacity-0 link-underline-opacity-75-hover link-offset-2"
+									>{{owner_username}}</a>
+							</li>
+							<li class="text-nowrap">
+								<i class="bi bi-chat-dots"></i> {{children_deep_count}}
+							</li>
+							<li class="text-nowrap">
+								<i class="bi bi-arrow-up"></i> {{tabcoins_credit}}
+							</li>
+							<li class="text-nowrap">
+								<i class="bi bi-arrow-down"></i> {{tabcoins_debit}}
+							</li>
+							<li class="text-nowrap">
+								<i class="bi bi-coin"></i> {{tabcoins}}
+							</li>
+							<li class="fst-italic opacity-25 ms-4">
+								{{published_at}}
+							</li>
+						</ul>
+
 						<div class="shadow mb-4 d-inline-block rounded-3 border px-3 py-2">
 							<a
 								hx-get="https://corsproxy.io/?https://www.tabnews.com.br/api/v1/contents/{{owner_username}}/{{slug}}?"
@@ -44,22 +69,35 @@
 								class="fs-5 lh-0 text-dark link-underline-dark link-underline-opacity-0 link-underline-opacity-75-hover"
 							>{{title}}</a>
 
+							<ul style="list-style: none" class="d-flex gap-4 p-0 m-0 mt-1 text-secondary align-items-center">
+								<li class="text-nowrap">
+									<a
+										href="#"
+										class="fs-6 lh-1 text-secondary link-underline-secondary link-underline-opacity-0 link-underline-opacity-75-hover link-offset-2"
+									>Mostrar artigo</a>
+								</li>
+								<li class="text-nowrap">
+									<a
+										href="#"
+										class="fs-6 lh-1 text-secondary link-underline-secondary link-underline-opacity-0 link-underline-opacity-75-hover link-offset-2"
+									>Esconder artigo</a>
+								</li>
+								<li class="text-nowrap">
+									<a
+										href="#"
+										class="fs-6 lh-1 text-secondary link-underline-secondary link-underline-opacity-0 link-underline-opacity-75-hover link-offset-2"
+									>Mostrar comentários</a>
+								</li>
+								<li class="text-nowrap">
+									<a
+										href="#"
+										class="fs-6 lh-1 text-secondary link-underline-secondary link-underline-opacity-0 link-underline-opacity-75-hover link-offset-2"
+									>Esconder comentários</a>
+								</li>
+							</ul>
+
 							<div class="article"></div>
 
-							<footer class="my-2 text-secondary align-items-center">
-								<small class="d-flex gap-4">
-									<a
-										href="https://www.tabnews.com.br/{{owner_username}}"
-										target="_blank"
-										class="fs-6 lh-1 text-secondary link-underline-secondary link-underline-opacity-0 link-underline-opacity-75-hover link-offset-2"
-									>{{owner_username}}</a>
-									<span><i class="bi bi-chat-dots"></i> {{children_deep_count}}</span>
-									<span><i class="bi bi-arrow-up"></i> {{tabcoins_credit}}</span>
-									<span><i class="bi bi-arrow-down"></i> {{tabcoins_debit}}</span>
-									<span><i class="bi bi-coin"></i> {{tabcoins}}</span>
-									<span class="fst-italic opacity-50 mx-3">{{published_at}}</span>
-								</small>
-							</footer>
 						</div>
 					</div>
 				{{/data}}
