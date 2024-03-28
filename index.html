@@ -95,6 +95,10 @@
 								</li>
 								<li class="text-nowrap">
 									<a
+										hx-get="https://corsproxy.io/?https://www.tabnews.com.br/api/v1/contents/{{owner_username}}/{{slug}}/children?"
+										hx-target="next .comments"
+										hx-indicator="#spinner"
+										mustache-array-template="mtt-comments"
 										href="#"
 										class="fs-6 lh-1 text-secondary link-underline-secondary link-underline-opacity-0 link-underline-opacity-75-hover link-offset-2"
 									>Mostrar comentários</a>
@@ -103,6 +107,7 @@
 									<a
 										href="#"
 										class="fs-6 lh-1 text-secondary link-underline-secondary link-underline-opacity-0 link-underline-opacity-75-hover link-offset-2"
+										onclick="document.getElementById('comments-{{owner_id}}-{{id}}').innerHTML = ''"
 									>Esconder comentários</a>
 								</li>
 							</ul>
@@ -111,6 +116,8 @@
 
 						</div>
 					</div>
+
+					<div id="comments-{{owner_id}}-{{id}}" class="comments"></div>
 				{{/data}}
 			</section>
 			<a
@@ -130,9 +137,56 @@
 			{{#data}}
 				<pre
 					style="white-space: pre-wrap; max-width: 90ch;"
-					class="mb-4 mt-2 mx-5"
+					class="mb-3 mt-2 mx-3"
 				>{{body}}</pre>
 			{{/data}}
+		</template>
+
+		<template id="mtt-comments">
+			<section class="border-start border-4 ms-5 ps-4">
+				{{#data}}
+					<div>
+						<div class="shadow mb-4 d-inline-block rounded-3 border p-2">
+							<ul style="list-style: none" class="d-flex gap-4 p-0 mt-1 mb-2 text-secondary align-items-center">
+								<li>
+									<a
+										href="https://www.tabnews.com.br/{{owner_username}}"
+										target="_blank"
+										class="fs-6 lh-1 text-secondary link-underline-secondary link-underline-opacity-0 link-underline-opacity-75-hover link-offset-2"
+										>{{owner_username}}</a>
+								</li>
+								<li class="text-nowrap">
+									<i class="bi bi-chat-dots"></i> {{children_deep_count}}
+								</li>
+								<li class="text-nowrap">
+									<i class="bi bi-arrow-up"></i> {{tabcoins_credit}}
+								</li>
+								<li class="text-nowrap">
+									<i class="bi bi-arrow-down"></i> {{tabcoins_debit}}
+								</li>
+								<li class="text-nowrap">
+									<i class="bi bi-coin"></i> {{tabcoins}}
+								</li>
+								<li class="fst-italic opacity-25 ms-4">
+									{{published_at}}
+								</li>
+							</ul>
+							<pre
+								style="white-space: pre-wrap; max-width: 90ch;"
+								class="px-3"
+							>{{body}}</pre>
+						</div>
+					</div>
+					<div
+						hx-get="https://corsproxy.io/?https://www.tabnews.com.br/api/v1/contents/{{owner_username}}/{{slug}}/children?"
+						hx-target="this"
+						hx-trigger="load"
+						hx-indicator="#spinner"
+						hx-swap="outerHTML"
+						mustache-array-template="mtt-comments"
+					></div>
+				{{/data}}
+			</section>
 		</template>
 
 	</body>
