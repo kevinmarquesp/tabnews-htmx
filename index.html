@@ -72,6 +72,9 @@
 							<ul style="list-style: none" class="d-flex gap-4 p-0 m-0 mt-1 text-secondary align-items-center">
 								<li class="text-nowrap">
 									<a
+										hx-get="https://corsproxy.io/?https://www.tabnews.com.br/api/v1/contents/{{owner_username}}/{{slug}}?"
+										hx-target="next .article"
+										mustache-array-template="mtt-article"
 										href="#"
 										class="fs-6 lh-1 text-secondary link-underline-secondary link-underline-opacity-0 link-underline-opacity-75-hover link-offset-2"
 									>Mostrar artigo</a>
@@ -80,6 +83,7 @@
 									<a
 										href="#"
 										class="fs-6 lh-1 text-secondary link-underline-secondary link-underline-opacity-0 link-underline-opacity-75-hover link-offset-2"
+										onclick="document.getElementById('article-{{owner_id}}-{{id}}').innerHTML = ''"
 									>Esconder artigo</a>
 								</li>
 								<li class="text-nowrap">
@@ -96,7 +100,7 @@
 								</li>
 							</ul>
 
-							<div class="article"></div>
+							<div id="article-{{owner_id}}-{{id}}" class="article"></div>
 
 						</div>
 					</div>
