@@ -21,12 +21,17 @@
 	</head>
 	<body hx-ext="client-side-templates" class="p-5">
 
+		<div id="spinner" class="htmx-indicator spinner-border fixed-bottom ms-auto m-3" role="status">
+			<span class="visually-hidden">Loading...</span>
+		</div>
+
 		<main
 			hx-get="https://corsproxy.io/?https://www.tabnews.com.br/api/v1/contents?"
 			hx-vals="js:{page: 1, per_page: CARDS_PER_PAGE, strategy: CARDS_STRATEGY}"
 			hx-swap="innerHTML"
 			hx-target="this"
 			hx-trigger="load"
+			hx-indicator="#spinner"
 			mustache-array-template="mtt-card"
 			id="app"
 		></main>
@@ -64,6 +69,7 @@
 							<a
 								hx-get="https://corsproxy.io/?https://www.tabnews.com.br/api/v1/contents/{{owner_username}}/{{slug}}?"
 								hx-target="next .article"
+								hx-indicator="#spinner"
 								mustache-array-template="mtt-article"
 								href="#"
 								class="fs-5 lh-0 text-dark link-underline-dark link-underline-opacity-0 link-underline-opacity-75-hover"
@@ -74,6 +80,7 @@
 									<a
 										hx-get="https://corsproxy.io/?https://www.tabnews.com.br/api/v1/contents/{{owner_username}}/{{slug}}?"
 										hx-target="next .article"
+										hx-indicator="#spinner"
 										mustache-array-template="mtt-article"
 										href="#"
 										class="fs-6 lh-1 text-secondary link-underline-secondary link-underline-opacity-0 link-underline-opacity-75-hover link-offset-2"
