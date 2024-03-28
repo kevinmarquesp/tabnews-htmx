@@ -16,7 +16,7 @@
 		<script src="https://unpkg.com/mustache@latest"></script>
 
 		<script>
-			const CARDS_PER_PAGE = 2;
+			const CARDS_PER_PAGE = 3;
 			const CARDS_STRATEGY = "relevant";
 		</script>
 	</head>
@@ -33,16 +33,16 @@
 			hx-target="this"
 			hx-trigger="load"
 			hx-indicator="#spinner"
-			mustache-array-template="mtt-card"
+			mustache-array-template="mtt-cards-section"
 			id="app"
 		></main>
 
-		<template id="mtt-card">
-			<section data-js-cards>
+		<template id="mtt-cards-section">
+			<section data-js-cards-section>
 				{{#data}}
 					<div>
 						<div class="shadow d-inline-block rounded-3 border px-3 py-2 mt-4">
-							<ul style="list-style: none" class="d-flex gap-4 p-0 mt-1 mb-2 text-secondary align-items-center">
+							<ul style="list-style: none" class="d-flex gap-4 p-0 mt-1 mb-0 text-secondary align-items-center">
 								<li>
 									<a
 										href="https://www.tabnews.com.br/{{owner_username}}"
@@ -69,72 +69,82 @@
 
 							{{#title}}
 								<button
-									class="fs-5 lh-0 text-dark p-0 m-0 btn btn-link link-underline-dark link-underline-opacity-0 link-underline-opacity-75-hover"
-									onclick="document.getElementById('article-{{owner_id}}-{{id}}').classList.toggle('d-none')"
+									class="fs-5 lh-0 text-start text-dark p-0 m-0 mt-2 btn btn-link link-underline-dark link-underline-opacity-0 link-underline-opacity-75-hover"
+									onclick="document.getElementById('article-{{owner_id}}-{{id}}').classList.toggle('d-none');"
 								>{{title}}</button>
 							{{/title}}
 
-							<ul style="list-style: none" class="d-flex gap-4 p-0 m-0 mt-1 text-secondary align-items-center">
+							<ul style="list-style: none" class="d-flex gap-3 p-0 m-0 mt-1 text-secondary align-items-center">
 								<li class="text-nowrap">
 									<a
-										hx-get="contents/{{owner_username}}/{{slug}}?"
-										hx-target="next .article"
-										hx-indicator="#spinner"
-										mustache-array-template="mtt-article"
 										href="https://www.tabnews.com.br/{{owner_username}}/{{slug}}"
+										target="_blank"
 										class="fs-6 lh-1 text-secondary link-underline-secondary link-underline-opacity-0 link-underline-opacity-75-hover link-offset-2"
 									>Post original</a>
 								</li>
 								<li class="text-nowrap">
-									<a
-										hx-get="contents/{{owner_username}}/{{slug}}/children?"
-										hx-target="next .comments"
-										hx-indicator="#spinner"
-										mustache-array-template="mtt-comments"
-										href="#"
-										class="fs-6 lh-1 text-secondary link-underline-secondary link-underline-opacity-0 link-underline-opacity-75-hover link-offset-2"
-									>Mostrar comentários</a>
-								</li>
-								<li class="text-nowrap">
-									<a
-										href="#"
-										class="fs-6 lh-1 text-secondary link-underline-secondary link-underline-opacity-0 link-underline-opacity-75-hover link-offset-2"
-										onclick="document.getElementById('comments-{{owner_id}}-{{id}}').innerHTML = ''"
-									>Esconder comentários</a>
+									<button
+										class="fs-6 lh-1 text-start text-secondary m-0 px-0 btn btn-link link-underline-secondary link-underline-opacity-0 link-underline-opacity-75-hover link-offset-2"
+										onclick="((b) => {
+											document.getElementById('comments-{{owner_id}}-{{id}}').classList.toggle('d-none');
+											this.innerText = b.innerText === 'Mostrar comentários' ? 'Esconder comentários' : 'Mostrar comentários';
+										})(this);"
+									>Mostrar comentários</button>
 								</li>
 							</ul>
 
-							<div
-								hx-get="contents/{{owner_username}}/{{slug}}?"
-								hx-target="this"
-								hx-indicator="#spinner"
-								hx-trigger="load"
-								mustache-array-template="mtt-article"
-								id="article-{{owner_id}}-{{id}}"
-								class="article {{#title}}d-none{{/title}}"
-							></div>
+							{{#title}}
+								<div
+									hx-get="contents/{{owner_username}}/{{slug}}?"
+									hx-target="this"
+									hx-indicator="#spinner"
+									hx-trigger="load"
+									mustache-array-template="mtt-article"
+									id="article-{{owner_id}}-{{id}}"
+									class="mt-3 {{#title}}d-none{{/title}}"
+								></div>
+							{{/title}}
+
+							{{#body}}
+								<pre
+									style="white-space: pre-wrap; max-width: 90ch;"
+									class="mb-3 mt-3 mx-3"
+								>{{body}}</pre>
+							{{/body}}
 
 						</div>
 					</div>
 
-					<div id="comments-{{owner_id}}-{{id}}" class="comments"></div>
+					<section
+						hx-get="contents/{{owner_username}}/{{slug}}/children?"
+						hx-target="this"
+						hx-indicator="#spinner"
+						hx-trigger="load"
+						mustache-array-template="mtt-comments"
+						id="comments-{{owner_id}}-{{id}}"
+						class="d-none border-start border-4 ms-5 ps-4"
+					></section>
 				{{/data}}
 			</section>
 
 			<br>
 			<hr class="mt-5 mb-5">
 
-			<a
+			<button
 				hx-get="contents?"
-				hx-vals="js:{page: document.querySelectorAll('section[data-js-cards]').length + 1, per_page: CARDS_PER_PAGE, strategy: CARDS_STRATEGY}"
+				hx-vals="js:{
+					page: document.querySelectorAll('section[data-js-cards-section]').length + 1,
+					per_page: CARDS_PER_PAGE,
+					strategy: CARDS_STRATEGY
+				}"
 				hx-swap="outerHTML"
 				hx-target="this"
-				mustache-array-template="mtt-card"
+				mustache-array-template="mtt-cards-section"
 				href="#"
-				class="link-underline-secondary text-secondary link-offset-2"
+				class="btn btn-dark"
 			>
 				<i class="bi bi-arrow-clockwise me-2"></i>Carregar mais
-			</a>
+			</button>
 		</template>
 
 		<template id="mtt-article">
@@ -147,50 +157,92 @@
 		</template>
 
 		<template id="mtt-comments">
-			<section class="border-start border-4 ms-5 ps-4">
-				{{#data}}
-					<div>
-						<div class="shadow mt-3 d-inline-block rounded-3 border p-2">
-							<ul style="list-style: none" class="d-flex gap-4 p-0 mt-1 mb-2 text-secondary align-items-center">
-								<li>
-									<a
-										href="https://www.tabnews.com.br/{{owner_username}}"
-										target="_blank"
-										class="fs-6 lh-1 text-secondary link-underline-secondary link-underline-opacity-0 link-underline-opacity-75-hover link-offset-2"
-										>{{owner_username}}</a>
-								</li>
-								<li class="text-nowrap">
-									<i class="bi bi-chat-dots"></i> {{children_deep_count}}
-								</li>
-								<li class="text-nowrap">
-									<i class="bi bi-arrow-up"></i> {{tabcoins_credit}}
-								</li>
-								<li class="text-nowrap">
-									<i class="bi bi-arrow-down"></i> {{tabcoins_debit}}
-								</li>
-								<li class="text-nowrap">
-									<i class="bi bi-coin"></i> {{tabcoins}}
-								</li>
-								<li class="fst-italic opacity-25 ms-4">
-									{{published_at}}
-								</li>
-							</ul>
+			{{#data}}
+				<div>
+					<div class="shadow d-inline-block rounded-3 border px-3 py-2 mt-4">
+						<ul style="list-style: none" class="d-flex gap-4 p-0 mt-1 mb-0 text-secondary align-items-center">
+							<li>
+								<a
+									href="https://www.tabnews.com.br/{{owner_username}}"
+									target="_blank"
+									class="fs-6 lh-1 text-secondary link-underline-secondary link-underline-opacity-0 link-underline-opacity-75-hover link-offset-2"
+									>{{owner_username}}</a>
+							</li>
+							<li class="text-nowrap">
+								<i class="bi bi-chat-dots"></i> {{children_deep_count}}
+							</li>
+							<li class="text-nowrap">
+								<i class="bi bi-arrow-up"></i> {{tabcoins_credit}}
+							</li>
+							<li class="text-nowrap">
+								<i class="bi bi-arrow-down"></i> {{tabcoins_debit}}
+							</li>
+							<li class="text-nowrap">
+								<i class="bi bi-coin"></i> {{tabcoins}}
+							</li>
+							<li class="fst-italic opacity-25 ms-auto">
+								{{published_at}}
+							</li>
+						</ul>
+
+						{{#title}}
+							<button
+								class="fs-5 lh-0 text-start text-dark p-0 m-0 mt-2 btn btn-link link-underline-dark link-underline-opacity-0 link-underline-opacity-75-hover"
+								onclick="document.getElementById('article-{{owner_id}}-{{id}}').classList.toggle('d-none');"
+							>{{title}}</button>
+						{{/title}}
+
+						<ul style="list-style: none" class="d-flex gap-3 p-0 m-0 mt-1 text-secondary align-items-center">
+							<li class="text-nowrap">
+								<a
+									href="https://www.tabnews.com.br/{{owner_username}}/{{slug}}"
+									target="_blank"
+									class="fs-6 lh-1 text-secondary link-underline-secondary link-underline-opacity-0 link-underline-opacity-75-hover link-offset-2"
+								>Post original</a>
+							</li>
+							<li class="text-nowrap">
+								<button
+									class="fs-6 lh-1 text-start text-secondary m-0 px-0 btn btn-link link-underline-secondary link-underline-opacity-0 link-underline-opacity-75-hover link-offset-2"
+									onclick="((b) => {
+										document.getElementById('comments-{{owner_id}}-{{id}}').classList.toggle('d-none');
+										this.innerText = b.innerText === 'Mostrar comentários' ? 'Esconder comentários' : 'Mostrar comentários';
+									})(this);"
+								>Mostrar comentários</button>
+							</li>
+						</ul>
+
+						{{#title}}
+							<div
+								hx-get="contents/{{owner_username}}/{{slug}}?"
+								hx-target="this"
+								hx-indicator="#spinner"
+								hx-trigger="load"
+								mustache-array-template="mtt-article"
+								id="article-{{owner_id}}-{{id}}"
+								class="mt-3 {{#title}}d-none{{/title}}"
+							></div>
+						{{/title}}
+
+						{{#body}}
 							<pre
 								style="white-space: pre-wrap; max-width: 90ch;"
-								class="px-3"
+								class="mb-3 mt-3 mx-3"
 							>{{body}}</pre>
-						</div>
+						{{/body}}
+
 					</div>
-					<div
-						hx-get="contents/{{owner_username}}/{{slug}}/children?"
-						hx-target="this"
-						hx-trigger="load"
-						hx-indicator="#spinner"
-						hx-swap="outerHTML"
-						mustache-array-template="mtt-comments"
-					></div>
-				{{/data}}
-			</section>
+				</div>
+
+				<section
+					hx-get="contents/{{owner_username}}/{{slug}}/children?"
+					hx-target="this"
+					hx-indicator="#spinner"
+					hx-trigger="load"
+					mustache-array-template="mtt-comments"
+					id="comments-{{owner_id}}-{{id}}"
+					class="d-none border-start border-4 ms-5 ps-4"
+				></section>
+			{{/data}}
 		</template>
 
 	</body>
