@@ -15,9 +15,18 @@
 		<script src="https://unpkg.com/htmx.org@1.9.11/dist/ext/client-side-templates.js"></script>
 		<script src="https://unpkg.com/mustache@latest"></script>
 
-		<script>
-			const CARDS_PER_PAGE = 3;
+		<script type="text/javascript">
+			const CARDS_PER_PAGE = 15;
 			const CARDS_STRATEGY = "relevant";
+			const RETRY_DELAY = 1_500;
+		</script>
+
+		<script defer type="text/javascript">
+			document.addEventListener("htmx:responseError", (e) => {
+				const eventType = event.detail.requestConfig.triggeringEvent.type;
+
+				setTimeout(() => htmx.trigger(e.detail.elt, eventType));
+			});
 		</script>
 	</head>
 	<body hx-ext="client-side-templates" class="p-5">
