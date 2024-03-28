@@ -67,11 +67,12 @@
 								</li>
 							</ul>
 
-							<a
-								href="#"
-								class="fs-5 lh-0 text-dark link-underline-dark link-underline-opacity-0 link-underline-opacity-75-hover"
-								onclick="document.getElementById('article-{{owner_id}}-{{id}}').classList.toggle('d-none')"
-							>{{title}}</a>
+							{{#title}}
+								<button
+									class="fs-5 lh-0 text-dark p-0 m-0 btn btn-link link-underline-dark link-underline-opacity-0 link-underline-opacity-75-hover"
+									onclick="document.getElementById('article-{{owner_id}}-{{id}}').classList.toggle('d-none')"
+								>{{title}}</button>
+							{{/title}}
 
 							<ul style="list-style: none" class="d-flex gap-4 p-0 m-0 mt-1 text-secondary align-items-center">
 								<li class="text-nowrap">
@@ -80,9 +81,9 @@
 										hx-target="next .article"
 										hx-indicator="#spinner"
 										mustache-array-template="mtt-article"
-										href="#"
+										href="https://www.tabnews.com.br/{{owner_username}}/{{slug}}"
 										class="fs-6 lh-1 text-secondary link-underline-secondary link-underline-opacity-0 link-underline-opacity-75-hover link-offset-2"
-									>Mostrar artigo</a>
+									>Post original</a>
 								</li>
 								<li class="text-nowrap">
 									<a
@@ -110,7 +111,7 @@
 								hx-trigger="load"
 								mustache-array-template="mtt-article"
 								id="article-{{owner_id}}-{{id}}"
-								class="article d-none"
+								class="article {{#title}}d-none{{/title}}"
 							></div>
 
 						</div>
