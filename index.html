@@ -4,11 +4,13 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-		<base href="https://thingproxy.freeboard.io/fetch/https://www.tabnews.com.br/api/v1/">
+		<!-- <base href="https://thingproxy.freeboard.io/fetch/https://www.tabnews.com.br/api/v1/"> -->
+		<!-- <base href="https://corsproxy.io/?https://www.tabnews.com.br/api/v1/"> -->
+		<!-- <base href="https://www.tabnews.com.br/api/v1/"> -->
 
 		<title>Tabnews Frontend With HTMX</title>
 
-		<script src="https://unpkg.com/htmx.org"></script>
+		<script src="https://unpkg.com/htmx.org@1.9.11" integrity="sha384-0gxUXCCR8yv9FM2b+U3FDbsKthCI66oH5IA9fHppQq9DDMHuMauqq1ZHBpJxQ0J0" crossorigin="anonymous"></script>
 		<script src="https://unpkg.com/htmx.org@1.9.11/dist/ext/client-side-templates.js"></script>
 		<script src="https://unpkg.com/nunjucks@latest"></script>
 		<script src="https://unpkg.com/showdown/dist/showdown.min.js"></script>
@@ -77,7 +79,7 @@
 	<body hx-ext="client-side-templates" class="p-5">
 
 		<main
-			hx-get="contents?"
+			hx-get="https://thingproxy.freeboard.io/fetch/https://www.tabnews.com.br/api/v1/contents?"
 			hx-vals="js:{page: 1, per_page: CARDS_PER_PAGE, strategy: CARDS_STRATEGY}"
 			hx-swap="innerHTML"
 			hx-target="this"
@@ -122,7 +124,7 @@
 
 					{% if title %}
 						<button
-							hx-get="contents/{{ owner_username }}/{{ slug }}?"
+							hx-get="https://thingproxy.freeboard.io/fetch/https://www.tabnews.com.br/api/v1/contents/{{ owner_username }}/{{ slug }}?"
 							hx-target="#article-{{ unique_sufix }}"
 							hx-trigger="load"
 							hx-swap="innerHTML"
@@ -144,7 +146,7 @@
 						{% if children_deep_count %}
 							<li class="text-nowrap">
 								<button
-									hx-get="contents/{{ owner_username }}/{{ slug }}/children?"
+									hx-get="https://thingproxy.freeboard.io/fetch/https://www.tabnews.com.br/api/v1/contents/{{ owner_username }}/{{ slug }}/children?"
 									hx-target="#comments-{{ unique_sufix }}"
 									hx-indicator="next .comments-spinner"
 									hx-trigger="load"
@@ -169,7 +171,7 @@
 
 					{% if body %}
 						<div
-							hx-get="contents/{{ owner_username }}/{{ slug }}?"
+							hx-get="https://thingproxy.freeboard.io/fetch/https://www.tabnews.com.br/api/v1/contents/{{ owner_username }}/{{ slug }}?"
 							hx-target="this"
 							hx-trigger="load"
 							hx-swap="outerHTML"
@@ -208,7 +210,7 @@
 
 			<div id="next-section">
 				<button
-					hx-get="contents?"
+					hx-get="https://thingproxy.freeboard.io/fetch/https://www.tabnews.com.br/api/v1/contents?"
 					hx-vals="js:{
 						page: document.querySelectorAll('section[data-js-cards-section]').length + 1,
 						per_page: CARDS_PER_PAGE,
@@ -277,7 +279,13 @@
 			const $toastError = document.querySelector("#toastError");
 			const toastError = bootstrap.Toast.getOrCreateInstance($toastError);
 
+			document.body.addEventListener('htmx:configRequest', (evt) => {
+				evt.detail.headers = [];
+			});
+
 			document.body.addEventListener("htmx:afterRequest", (e) => {
+				console.log(e);
+
 				if (e.detail.xhr.status !== 200) {
 					const $target = e.target;
 					const trigger = $target.getAttribute("hx-trigger");
