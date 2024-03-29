@@ -69,7 +69,8 @@
 				var $templ = document.getElementById(templateId);
 
 				$target.innerHTML = nunjucks.renderString($templ.innerHTML, JSON.parse(data));
-				htmx.process($target);
+				htmx.process($target)
+
 			}
 		</script>
 	</head>
@@ -123,7 +124,7 @@
 						<button
 							hx-get="contents/{{ owner_username }}/{{ slug }}?"
 							hx-target="#article-{{ unique_sufix }}"
-							hx-trigger="click once"
+							hx-trigger="load"
 							hx-swap="innerHTML"
 							hx-indicator="next .article-spinner"
 							nunjucks-template="article"
@@ -146,7 +147,7 @@
 									hx-get="contents/{{ owner_username }}/{{ slug }}/children?"
 									hx-target="#comments-{{ unique_sufix }}"
 									hx-indicator="next .comments-spinner"
-									hx-trigger="click once"
+									hx-trigger="load"
 									nunjucks-array-template="comments"
 									class="fs-6 lh-1 text-start text-secondary m-0 px-0 btn btn-link link-underline-secondary link-underline-opacity-0 link-underline-opacity-75-hover link-offset-2"
 									onclick="((b) => {
@@ -257,11 +258,36 @@
 				{% endfor %}
 		</template>
 
-		<script defer type="text/javascript">
-			document.addEventListener("htmx:responseError", (e) => {
-				const eventType = event.detail.requestConfig.triggeringEvent.type;
 
-				setTimeout(() => htmx.trigger(e.detail.elt, eventType));
+		<div class="toast-container position-fixed bottom-0 end-0 p-3">
+			<div id="toastError" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-dismiss="toast">
+				<div class="toast-header">
+					<span class="text-danger me-3">
+						<i class="bi bi-square-fill"></i>
+					</span>
+					<strong class="me-auto">Uooooppaaaaa amigão!</strong>
+				</div>
+				<div class="toast-body">
+					Algumas aquisições para a API do Tabnews deu errado... Calma lá que eu vo tentar denovo!
+				</div>
+			</div>
+		</div>
+
+		<script defer type="text/javascript">
+			const $toastError = document.querySelector("#toastError");
+			const toastError = bootstrap.Toast.getOrCreateInstance($toastError);
+
+			document.body.addEventListener("htmx:afterRequest", (e) => {
+				if (e.detail.xhr.status !== 200) {
+					const $target = e.target;
+					const trigger = $target.getAttribute("hx-trigger");
+
+					toastError.show();
+
+					setTimeout(() => {
+						htmx.trigger($target, trigger);
+					}, RETRY_DELAY);
+				}
 			});
 		</script>
 	</body>
