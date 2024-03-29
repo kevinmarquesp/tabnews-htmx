@@ -3,30 +3,54 @@
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 		<base href="https://thingproxy.freeboard.io/fetch/https://www.tabnews.com.br/api/v1/">
 
 		<title>Tabnews Frontend With HTMX</title>
+
+		<script src="https://unpkg.com/htmx.org"></script>
+		<script src="https://unpkg.com/htmx.org@1.9.11/dist/ext/client-side-templates.js"></script>
+		<script src="https://unpkg.com/nunjucks@latest"></script>
 
 		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-		<script src="https://unpkg.com/htmx.org@1.9.11"></script>
-		<script src="https://unpkg.com/htmx.org@1.9.11/dist/ext/client-side-templates.js"></script>
-		<script src="https://unpkg.com/mustache@latest"></script>
-
 		<script type="text/javascript">
 			const CARDS_PER_PAGE = 15;
 			const CARDS_STRATEGY = "relevant";
 			const RETRY_DELAY = 1_500;
-		</script>
 
-		<script defer type="text/javascript">
-			document.addEventListener("htmx:responseError", (e) => {
-				const eventType = event.detail.requestConfig.triggeringEvent.type;
+			function convertHTMLToJSON(htmlString) {
+				var tempElement = document.createElement('div');
 
-				setTimeout(() => htmx.trigger(e.detail.elt, eventType));
-			});
+				tempElement.innerHTML = htmlString;
+
+				var decodedString = tempElement.textContent || tempElement.innerText;
+
+				var jsonObject = JSON.parse(decodedString, function(key, value) {
+					if (typeof value === "string") {
+						return value
+							.replace(/\\/g, '\\\\')
+							.replace(/"/g, '\\"');
+					}
+
+					return value;
+				});
+
+				var jsonString = JSON.stringify(jsonObject);
+
+				return jsonString;
+			}
+
+			function renderDinamicHTMLTemplate(targetId, dataString, templateId) {
+				var $target = document.getElementById(targetId);
+				var data = convertHTMLToJSON(dataString);
+				var $templ = document.getElementById(templateId);
+
+				$target.innerHTML = nunjucks.renderString($templ.innerHTML, JSON.parse(data));
+				htmx.process($target);
+			}
 		</script>
 	</head>
 	<body hx-ext="client-side-templates" class="p-5">
@@ -37,7 +61,7 @@
 			hx-swap="innerHTML"
 			hx-target="this"
 			hx-trigger="load"
-			mustache-array-template="mtt-cards-section"
+			nunjucks-array-template="section"
 			id="app"
 		>
 			<div class="spinner-border" role="status">
@@ -45,99 +69,112 @@
 			</div>
 		</main>
 
-		<template id="mtt-cards-section">
-			<section data-js-cards-section>
-				{{#data}}
-					<div>
-						<div class="shadow d-inline-block rounded-3 border px-3 py-2 mt-4 me-5">
-							<ul style="list-style: none" class="d-flex gap-4 p-0 mt-1 mb-0 text-secondary align-items-center">
-								<li>
-									<a
-										href="https://www.tabnews.com.br/{{owner_username}}"
-										target="_blank"
-										class="fs-6 lh-1 text-secondary link-underline-secondary link-underline-opacity-0 link-underline-opacity-75-hover link-offset-2"
-										>{{owner_username}}</a>
-								</li>
-								<li class="text-nowrap">
-									<i class="bi bi-chat-dots"></i> {{children_deep_count}}
-								</li>
-								<li class="text-nowrap">
-									<i class="bi bi-arrow-up"></i> {{tabcoins_credit}}
-								</li>
-								<li class="text-nowrap">
-									<i class="bi bi-arrow-down"></i> {{tabcoins_debit}}
-								</li>
-								<li class="text-nowrap">
-									<i class="bi bi-coin"></i> {{tabcoins}}
-								</li>
-								<li class="fst-italic opacity-25 ms-auto">
-									{{published_at}}
-								</li>
-							</ul>
+		<template id="card">
+			{% set unique_sufix = id + slug + owner_username + owner_id %}
 
-							{{#title}}
+			<div>
+				<div class="shadow d-inline-block rounded-3 border px-3 py-2 mt-4 me-5">
+					<ul style="list-style: none" class="d-flex gap-4 p-0 mt-1 mb-0 text-secondary align-items-center">
+						<li>
+							<a
+								href="https://www.tabnews.com.br/{{ owner_username }}"
+								target="_blank"
+								class="fs-6 lh-1 text-secondary link-underline-secondary link-underline-opacity-0 link-underline-opacity-75-hover link-offset-2"
+								>{{ owner_username }}</a>
+						</li>
+						<li class="text-nowrap">
+							<i class="bi bi-chat-dots"></i> {{ children_deep_count }}
+						</li>
+						<li class="text-nowrap">
+							<i class="bi bi-arrow-up"></i> {{ tabcoins_credit }}
+						</li>
+						<li class="text-nowrap">
+							<i class="bi bi-arrow-down"></i> {{ tabcoins_debit }}
+						</li>
+						<li class="text-nowrap">
+							<i class="bi bi-coin"></i> {{ tabcoins }}
+						</li>
+						<li class="fst-italic opacity-25 ms-auto">
+							{{ published_at }}
+						</li>
+					</ul>
+
+					{% if title %}
+						<button
+							hx-get="contents/{{ owner_username }}/{{ slug }}?"
+							hx-target="#article-{{ unique_sufix }}"
+							hx-trigger="click once"
+							hx-swap="innerHTML"
+							hx-indicator="next .article-spinner"
+							nunjucks-template="article"
+							class="fs-5 lh-0 text-start text-dark p-0 m-0 mt-2 btn btn-link link-underline-dark link-underline-opacity-0 link-underline-opacity-75-hover"
+							onclick="document.getElementById('article-{{ unique_sufix }}').classList.toggle('d-none');"
+						>{{ title }}</button>
+					{% endif %}
+
+					<ul style="list-style: none" class="d-flex gap-3 p-0 m-0 mt-1 text-secondary align-items-center">
+						<li class="text-nowrap">
+							<a
+								href="https://www.tabnews.com.br/{{ owner_username }}/{{ slug }}"
+								target="_blank"
+								class="fs-6 lh-1 text-secondary link-underline-secondary link-underline-opacity-0 link-underline-opacity-75-hover link-offset-2"
+							>Post original</a>
+						</li>
+						{% if children_deep_count %}
+							<li class="text-nowrap">
 								<button
-									hx-get="contents/{{owner_username}}/{{slug}}?"
-									hx-target="#article-{{owner_id}}-{{id}}"
-									hx-indicator="next .article-spinner"
+									hx-get="contents/{{ owner_username }}/{{ slug }}/children?"
+									hx-target="#comments-{{ unique_sufix }}"
+									hx-indicator="next .comments-spinner"
 									hx-trigger="click once"
-									mustache-array-template="mtt-article"
-									class="fs-5 lh-0 text-start text-dark p-0 m-0 mt-2 btn btn-link link-underline-dark link-underline-opacity-0 link-underline-opacity-75-hover"
-									onclick="document.getElementById('article-{{owner_id}}-{{id}}').classList.toggle('d-none');"
-								>{{title}}</button>
-							{{/title}}
+									nunjucks-array-template="comments"
+									class="fs-6 lh-1 text-start text-secondary m-0 px-0 btn btn-link link-underline-secondary link-underline-opacity-0 link-underline-opacity-75-hover link-offset-2"
+									onclick="((b) => {
+										document.getElementById('comments-{{ unique_sufix }}').classList.toggle('d-none');
+										this.innerText = b.innerText === 'Mostrar comentários' ? 'Esconder comentários' : 'Mostrar comentários';
+									})(this);"
+								>Mostrar comentários</button>
+							</li>
+						{% endif %}
+					</ul>
 
-							<ul style="list-style: none" class="d-flex gap-3 p-0 m-0 mt-1 text-secondary align-items-center">
-								<li class="text-nowrap">
-									<a
-										href="https://www.tabnews.com.br/{{owner_username}}/{{slug}}"
-										target="_blank"
-										class="fs-6 lh-1 text-secondary link-underline-secondary link-underline-opacity-0 link-underline-opacity-75-hover link-offset-2"
-									>Post original</a>
-								</li>
-								<li class="text-nowrap">
-									<button
-										hx-get="contents/{{owner_username}}/{{slug}}/children?"
-										hx-target="#comments-{{owner_id}}-{{id}}"
-										hx-indicator="next .comments-spinner"
-										hx-trigger="click once"
-										mustache-array-template="mtt-comments"
-										class="fs-6 lh-1 text-start text-secondary m-0 px-0 btn btn-link link-underline-secondary link-underline-opacity-0 link-underline-opacity-75-hover link-offset-2"
-										onclick="((b) => {
-											document.getElementById('comments-{{owner_id}}-{{id}}').classList.toggle('d-none');
-											this.innerText = b.innerText === 'Mostrar comentários' ? 'Esconder comentários' : 'Mostrar comentários';
-										})(this);"
-									>Mostrar comentários</button>
-								</li>
-							</ul>
-
-							{{#title}}
-								<div id="article-{{owner_id}}-{{id}}" class="mt-3 {{#title}}d-none{{/title}}">
-									<div class="article-spinner htmx-indicator spinner-border ms-4 mb-3" role="status">
-										<span class="visually-hidden">Loading...</span>
-									</div>
-								</div>
-							{{/title}}
-
-							{{#body}}
-								<pre
-									style="white-space: pre-wrap; max-width: 90ch;"
-									class="mb-3 mt-3 mx-3"
-								>{{body}}</pre>
-							{{/body}}
-
+					{% if title %}
+						<div id="article-{{ unique_sufix }}" class="mt-3 {% if title %}d-none{% endif %}">
+							<div class="article-spinner htmx-indicator spinner-border ms-4 mb-3" role="status">
+								<span class="visually-hidden">Loading...</span>
+							</div>
 						</div>
+					{% endif %}
+
+					{% if body %}
+						<pre
+							style="white-space: pre-wrap; max-width: 90ch;"
+							class="mb-3 mt-3 mx-3"
+						>{{ body }}</pre>
+					{% endif %}
+
+				</div>
+			</div>
+
+			<section id="comments-{{ unique_sufix }}" class="d-none border-start border-4 ms-5 ps-4">
+				<div class="comments-spinner htmx-indicator spinner-border mt-4 m-3" role="status">
+					<span class="visually-hidden">Loading...</span>
+				</div>
+			</section>
+		</template>
+
+		<template id="section">
+			<section data-js-cards-section>
+				{% for post in data %}
+					{% set card_id = "card-" + post.id %}
+					<div id="{{ card_id }}">
+						<script type="text/javascript">
+							renderDinamicHTMLTemplate("{{ card_id }}", "{{ post | dump }}", "card")
+						</script>
 					</div>
-
-					<section id="comments-{{owner_id}}-{{id}}" class="d-none border-start border-4 ms-5 ps-4">
-						<div class="comments-spinner htmx-indicator spinner-border mt-4 m-3" role="status">
-							<span class="visually-hidden">Loading...</span>
-						</div>
-					</section>
-				{{/data}}
+				{% endfor %}
 			</section>
 
-			<br>
 			<hr class="mt-5 mb-5">
 
 			<div id="next-section">
@@ -152,7 +189,7 @@
 					hx-target="#next-section"
 					hx-trigger="click once"
 					hx-indicator="#load-more-spinner"
-					mustache-array-template="mtt-cards-section"
+					nunjucks-array-template="section"
 					class="btn btn-dark px-5 d-relative"
 				>Carregar mais</button>
 				<span
@@ -163,105 +200,30 @@
 			</div>
 		</template>
 
-		<template id="mtt-article">
-			{{#data}}
-				<pre
-					style="white-space: pre-wrap; max-width: 90ch;"
-					class="mb-3 mt-2 mx-3"
-				>{{body}}</pre>
-			{{/data}}
+		<template id="article">
+			<pre
+				style="white-space: pre-wrap; max-width: 90ch;"
+				class="mb-3 mt-2 mx-3"
+			>{{ body }}</pre>
 		</template>
 
-		<template id="mtt-comments">
-				{{#data}}
-					<div>
-						<div class="shadow d-inline-block rounded-3 border px-3 py-2 mt-4 me-5">
-							<ul style="list-style: none" class="d-flex gap-4 p-0 mt-1 mb-0 text-secondary align-items-center">
-								<li>
-									<a
-										href="https://www.tabnews.com.br/{{owner_username}}"
-										target="_blank"
-										class="fs-6 lh-1 text-secondary link-underline-secondary link-underline-opacity-0 link-underline-opacity-75-hover link-offset-2"
-										>{{owner_username}}</a>
-								</li>
-								<li class="text-nowrap">
-									<i class="bi bi-chat-dots"></i> {{children_deep_count}}
-								</li>
-								<li class="text-nowrap">
-									<i class="bi bi-arrow-up"></i> {{tabcoins_credit}}
-								</li>
-								<li class="text-nowrap">
-									<i class="bi bi-arrow-down"></i> {{tabcoins_debit}}
-								</li>
-								<li class="text-nowrap">
-									<i class="bi bi-coin"></i> {{tabcoins}}
-								</li>
-								<li class="fst-italic opacity-25 ms-auto">
-									{{published_at}}
-								</li>
-							</ul>
-
-							{{#title}}
-								<button
-									hx-get="contents/{{owner_username}}/{{slug}}?"
-									hx-target="#article-{{owner_id}}-{{id}}"
-									hx-indicator="next .article-spinner"
-									hx-trigger="click once"
-									mustache-array-template="mtt-article"
-									class="fs-5 lh-0 text-start text-dark p-0 m-0 mt-2 btn btn-link link-underline-dark link-underline-opacity-0 link-underline-opacity-75-hover"
-									onclick="document.getElementById('article-{{owner_id}}-{{id}}').classList.toggle('d-none');"
-								>{{title}}</button>
-							{{/title}}
-
-							<ul style="list-style: none" class="d-flex gap-3 p-0 m-0 mt-1 text-secondary align-items-center">
-								<li class="text-nowrap">
-									<a
-										href="https://www.tabnews.com.br/{{owner_username}}/{{slug}}"
-										target="_blank"
-										class="fs-6 lh-1 text-secondary link-underline-secondary link-underline-opacity-0 link-underline-opacity-75-hover link-offset-2"
-									>Post original</a>
-								</li>
-								<li class="text-nowrap">
-									<button
-										hx-get="contents/{{owner_username}}/{{slug}}/children?"
-										hx-target="#comments-{{owner_id}}-{{id}}"
-										hx-indicator="next .comments-spinner"
-										hx-trigger="click once"
-										mustache-array-template="mtt-comments"
-										class="fs-6 lh-1 text-start text-secondary m-0 px-0 btn btn-link link-underline-secondary link-underline-opacity-0 link-underline-opacity-75-hover link-offset-2"
-										onclick="((b) => {
-											document.getElementById('comments-{{owner_id}}-{{id}}').classList.toggle('d-none');
-											this.innerText = b.innerText === 'Mostrar comentários' ? 'Esconder comentários' : 'Mostrar comentários';
-										})(this);"
-									>Mostrar comentários</button>
-								</li>
-							</ul>
-
-							{{#title}}
-								<div id="article-{{owner_id}}-{{id}}" class="mt-3 {{#title}}d-none{{/title}}">
-									<div class="article-spinner htmx-indicator spinner-border ms-4 mb-3" role="status">
-										<span class="visually-hidden">Loading...</span>
-									</div>
-								</div>
-							{{/title}}
-
-							{{#body}}
-								<pre
-									style="white-space: pre-wrap; max-width: 90ch;"
-									class="mb-3 mt-3 mx-3"
-								>{{body}}</pre>
-							{{/body}}
-
-						</div>
+		<template id="comments">
+				{% for post in data %}
+					{% set card_id = "comment-" + post.id %}
+					<div id="{{ card_id }}">
+						<script type="text/javascript">
+							renderDinamicHTMLTemplate("{{ card_id }}", "{{ post | dump }}", "card")
+						</script>
 					</div>
-
-					<section id="comments-{{owner_id}}-{{id}}" class="d-none border-start border-4 ms-5 ps-4">
-						<div class="comments-spinner htmx-indicator spinner-border mt-4 m-3" role="status">
-							<span class="visually-hidden">Loading...</span>
-						</div>
-					</section>
-				{{/data}}
+				{% endfor %}
 		</template>
 
+		<script defer type="text/javascript">
+			document.addEventListener("htmx:responseError", (e) => {
+				const eventType = event.detail.requestConfig.triggeringEvent.type;
+
+				setTimeout(() => htmx.trigger(e.detail.elt, eventType));
+			});
+		</script>
 	</body>
 </html>
